@@ -1,0 +1,5 @@
+replicaCount: 1
+image:
+  registry: boutiqueacr4516.azurecr.io
+  tag: latest
+  pullPolicy: IfNotPresent

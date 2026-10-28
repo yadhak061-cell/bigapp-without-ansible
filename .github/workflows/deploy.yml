@@ -1,4 +1,4 @@
-name: Native K8s Deploy - Online Boutique
+name: Helm Deploy to AKS
 
 on:
   push:
@@ -22,6 +22,10 @@ jobs:
           resource-group: test
           cluster-name: test
 
-      - name: Apply Microservices Manifests
+      - name: Log in to ACR
         run: |
-          kubectl apply -f k8s-manifests/kubernetes-manifests.yaml
+          az acr login --name boutiqueacr4516
+
+      - name: Deploy Application via Helm
+        run: |
+          helm upgrade --install boutique-release ./chart --namespace default
