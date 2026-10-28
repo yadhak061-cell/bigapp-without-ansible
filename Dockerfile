@@ -1,11 +1,21 @@
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
-
-# Initialize a temporary Go module
 RUN go mod init app
 
-# Create a sample main.go so the build succeeds
-RUN echo 'package main; import "fmt"; func main() { fmt.Println("Hello from DevOps Pipeline!") }' > main.go
+# Create a proper HTTP server that stays running
+cat << 'GOEOF' > main.go
+package main
+import (
+    "fmt"
+    "net/http"
+)
+func main() {
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, "Hello from Dynamic DevOps Pipeline!")
+    })
+    http.ListenAndServe(":8080", nil)
+}
+GOEOF
 
 RUN go build -o main .
 
