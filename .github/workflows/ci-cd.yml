@@ -31,6 +31,11 @@ jobs:
           resource-group: test
           cluster-name: test
 
+      - name: Clean up old release conflicts
+        run: |
+          helm uninstall boutique-release --namespace default --ignore-not-found=true
+          kubectl delete service frontend --ignore-not-found=true
+
       - name: Deploy Dynamic Helm Chart
         run: |
-          helm upgrade --install dynamic-release ./chart --namespace default --atomic
+          helm upgrade --install dynamic-release ./chart --namespace default --rollback-on-failure
