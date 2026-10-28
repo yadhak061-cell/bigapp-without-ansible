@@ -1,0 +1,36 @@
+name: Build and Deploy via Dynamic Helm
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to ACR
+        run: |
+          az acr login --name boutiqueacr4516
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t boutiqueacr4516.azurecr.io/frontend:latest .
+          docker push boutiqueacr4516.azurecr.io/frontend:latest
+
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: test
+          cluster-name: test
+
+      - name: Deploy Dynamic Helm Chart
+        run: |
+          helm upgrade --install dynamic-release ./chart --namespace default --atomic
